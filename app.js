@@ -1,15 +1,18 @@
 window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
-var particles = [];
-var mousePos = {x: 0, y: 0};
-
 var global_width = window.innerWidth,
     global_height = window.innerHeight,
     ratio = 1,
     canvas = document.getElementById('canvas'),
-    ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d'),
+    particles = [],
+    mousePos = {x: 0, y: 0},
+    listDistDivider = 10,
+    pointScape = 2,
+    pointCount = 100,
+    pointColor = '#ECF0F1',
+    lineColor = '#ECF0F1';
 
-/* SETUP */
 function setup() {
     if (ctx) {
         canvas.addEventListener('mousemove', function (evt) {
@@ -28,28 +31,23 @@ function rescale() {
     if (ctx.webkitBackingStorePixelRatio < 2) ratio = window.devicePixelRatio || 1;
     canvas.setAttribute('width', global_width * ratio);
     canvas.setAttribute('height', global_height * ratio);
-//    resetParticles();
     draw();
 }
 
-/* INIT */
 function init() {
-
     resetParticles();
     draw();
 }
 
-
-/* DRAW */
 function drawExample() {
 
-    var lineDist = global_width / 10;
+    var lineDist = global_width / listDistDivider;
 
     particles.forEach(function (particle) {
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.scale, 0, Math.PI * 2, true);
         ctx.closePath();
-        ctx.fillStyle = '#ECF0F1';
+        ctx.fillStyle = pointColor;
         ctx.fill();
 
         var mouseDistance = lineDistance(particle, mousePos);
@@ -60,7 +58,7 @@ function drawExample() {
         particles.forEach(function (particleTwo) {
             var distance = lineDistance(particle, particleTwo);
             if (distance < lineDist) {
-                drawLine(particle,particleTwo,distance);
+                drawLine(particle, particleTwo, distance);
             }
         });
 
@@ -72,9 +70,9 @@ function drawExample() {
             }
         }
         if (particle.y > global_height || particle.y < 0) {
-            var index = particles.indexOf(particle);
-            if (index > -1) {
-                particles.splice(index, 1);
+            var indexTwo = particles.indexOf(particle);
+            if (indexTwo > -1) {
+                particles.splice(indexTwo, 1);
                 addNewPoint();
             }
         }
@@ -117,17 +115,17 @@ function lineDistance(point1, point2) {
 
 function resetParticles() {
     particles = [];
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < pointCount; i++) {
         addNewPoint();
     }
 }
 
-function drawLine(particle, particleTwo, distance){
+function drawLine(particle, particleTwo, distance) {
     ctx.beginPath();
     ctx.moveTo(particle.x, particle.y);
     ctx.lineTo(particleTwo.x, particleTwo.y);
     ctx.lineWidth = distance / 300;
-    ctx.strokeStyle = '#ECF0F1';
+    ctx.strokeStyle = lineColor;
     ctx.stroke();
 }
 
@@ -138,7 +136,7 @@ function addNewPoint() {
 
     var x = randomIntFromInterval(0, global_width);
     var y = randomIntFromInterval(0, global_height);
-    var scale = 2;
+    var scale = pointScape;
     particles.push({x: x, y: y, dx: dx, dy: dy, scale: scale, speed: speed});
 }
 
