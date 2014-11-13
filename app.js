@@ -7,11 +7,13 @@ var global_width = window.innerWidth,
     ctx = canvas.getContext('2d'),
     particles = [],
     mousePos = {x: 0, y: 0},
-    listDistDivider = 10,
-    pointScape = 2,
+    lineDistDivider = 8,
+    pointScale = 2,
     pointCount = 100,
     pointColor = '#ECF0F1',
-    lineColor = '#ECF0F1';
+    lineColor = '#ECF0F1',
+    maxLineDistance = global_width / lineDistDivider,
+    thinknessScale = 400;
 
 function setup() {
     if (ctx) {
@@ -41,7 +43,7 @@ function init() {
 
 function drawExample() {
 
-    var lineDist = global_width / listDistDivider;
+    var maxLineDistance = global_width / lineDistDivider;
 
     particles.forEach(function (particle) {
         ctx.beginPath();
@@ -51,13 +53,13 @@ function drawExample() {
         ctx.fill();
 
         var mouseDistance = lineDistance(particle, mousePos);
-        if (mouseDistance < lineDist) {
+        if (mouseDistance < maxLineDistance) {
             drawLine(particle, mousePos, mouseDistance);
         }
 
         particles.forEach(function (particleTwo) {
             var distance = lineDistance(particle, particleTwo);
-            if (distance < lineDist) {
+            if (distance < maxLineDistance) {
                 drawLine(particle, particleTwo, distance);
             }
         });
@@ -83,7 +85,6 @@ function drawExample() {
     });
 }
 
-
 function draw() {
     ctx.save();
     ctx.scale(ratio, ratio);
@@ -95,13 +96,12 @@ function draw() {
     ctx.restore();
 }
 
-/* UPDATE */
 function update() {
     requestAnimationFrame(update);
     draw();
 }
 
-////////////////////
+/* other stuff*/
 
 function lineDistance(point1, point2) {
     var xs = point2.x - point1.x;
@@ -115,6 +115,7 @@ function lineDistance(point1, point2) {
 
 function resetParticles() {
     particles = [];
+
     for (var i = 0; i < pointCount; i++) {
         addNewPoint();
     }
@@ -124,7 +125,7 @@ function drawLine(particle, particleTwo, distance) {
     ctx.beginPath();
     ctx.moveTo(particle.x, particle.y);
     ctx.lineTo(particleTwo.x, particleTwo.y);
-    ctx.lineWidth = distance / 300;
+    ctx.lineWidth = invertDistance(distance);
     ctx.strokeStyle = lineColor;
     ctx.stroke();
 }
@@ -136,12 +137,18 @@ function addNewPoint() {
 
     var x = randomIntFromInterval(0, global_width);
     var y = randomIntFromInterval(0, global_height);
-    var scale = pointScape;
+    var scale = pointScale;
     particles.push({x: x, y: y, dx: dx, dy: dy, scale: scale, speed: speed});
 }
 
 function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+//TODO
+function invertDistance(num){
+  return ((maxLineDistance + 0) - num)/thinknessScale;
+  // return num;
 }
 
 function getMousePos(canvas, evt) {
